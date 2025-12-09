@@ -7,9 +7,6 @@ import com.movieflix.movieflix.entity.Movie;
 import com.movieflix.movieflix.mapper.MovieMapper;
 import com.movieflix.movieflix.service.MovieService;
 import lombok.RequiredArgsConstructor;
-
-import lombok.val;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
