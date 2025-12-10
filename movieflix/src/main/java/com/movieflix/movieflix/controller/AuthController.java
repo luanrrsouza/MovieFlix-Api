@@ -7,14 +7,17 @@ import com.movieflix.movieflix.controller.request.UserRequest;
 import com.movieflix.movieflix.controller.response.LoginResponse;
 import com.movieflix.movieflix.controller.response.UserResponse;
 import com.movieflix.movieflix.entity.User;
+import com.movieflix.movieflix.exception.UsernameOrPasswordInvalidException;
 import com.movieflix.movieflix.mapper.UserMapper;
 import com.movieflix.movieflix.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,14 +41,22 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        UsernamePasswordAuthenticationToken userAndPass = new UsernamePasswordAuthenticationToken(request.email(), request.password());
-        Authentication authentication = authenticationManager.authenticate(userAndPass);
 
-        User user = (User) authentication.getPrincipal();
+        try {
 
-        String token = tokenService.generateToken(user);
+            UsernamePasswordAuthenticationToken userAndPass = new UsernamePasswordAuthenticationToken(request.email(), request.password());
+            Authentication authentication = authenticationManager.authenticate(userAndPass);
 
-        return ResponseEntity.ok(new LoginResponse(token));
+            User user = (User) authentication.getPrincipal();
+
+            String token = tokenService.generateToken(user);
+
+            return ResponseEntity.ok(new LoginResponse(token));
+
+        } catch(BadCredentialsException e) {
+            throw new UsernameOrPasswordInvalidException("Usuário ou senha inválido.");
+        }
+
 
     }
 }
