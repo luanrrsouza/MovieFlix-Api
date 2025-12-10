@@ -15,18 +15,27 @@ import java.util.Map;
 @RestControllerAdvice
 public class ApplicationControllerAdvice {
 
+
     @ExceptionHandler(UsernameOrPasswordInvalidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String handleNotFoundException(UsernameOrPasswordInvalidException exception) {
+    public String handleUserOrPasswordInvalid(UsernameOrPasswordInvalidException exception) {
         return exception.getMessage();
     }
-    @ExceptionHandler(UsernameOrPasswordInvalidException.class)
+
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleArgumentNotValidException(MethodArgumentNotValidException exception) {
         Map<String, String> errors = new HashMap<>();
-        exception.getBindingResult().getAllErrors().forEach((error) -> errors.put(((FieldError) error).getField(), error.getDefaultMessage()));
 
-            return errors;
+
+        exception.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+
+        return errors;
     }
 
 }
